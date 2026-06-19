@@ -2,20 +2,33 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>XUID Converter</title>
+    <title>Floodgate Lookup</title>
 </head>
 <body>
-    <h2>Floodgate lookup</h2>
+    <h2>Floodgate Lookup</h2>
 
     <input id="inputString" type="text" placeholder="Enter Xbox username">
     <button onclick="lookup()">Convert</button>
 
     <p id="result"></p>
 
+    <div id="commandContainer" style="display:none; margin-top:10px;">
+        <pre id="commandText" style="display:inline-block; margin-right:10px;"></pre>
+        <button onclick="copyCommand()">Copy</button>
+        <span id="copiedMsg" style="color:green; display:none;">Copied!</span>
+    </div>
+
     <script>
         async function lookup() {
             const input = document.getElementById("inputString").value.trim();
             const resultEl = document.getElementById("result");
+            const commandContainer = document.getElementById("commandContainer");
+            const commandText = document.getElementById("commandText");
+            const copiedMsg = document.getElementById("copiedMsg");
+
+            resultEl.textContent = "";
+            commandContainer.style.display = "none";
+            copiedMsg.style.display = "none";
 
             if (!input) {
                 resultEl.textContent = "Please enter a value.";
@@ -47,12 +60,28 @@
                 // Prefix as required
                 const finalValue = "00000000-0000-0000-000" + hexWithDash;
 
+                // Show main result
                 resultEl.textContent = finalValue;
+
+                // Show command
+                commandText.textContent = "fwhitelist add " + finalValue;
+                commandContainer.style.display = "block";
 
             } catch (err) {
                 resultEl.textContent = "Error: " + err.message;
             }
         }
+
+        function copyCommand() {
+            const text = document.getElementById("commandText").textContent;
+            navigator.clipboard.writeText(text);
+
+            const copiedMsg = document.getElementById("copiedMsg");
+            copiedMsg.style.display = "inline";
+
+            setTimeout(() => copiedMsg.style.display = "none", 1500);
+        }
     </script>
 </body>
 </html>
+
