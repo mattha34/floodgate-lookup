@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>XUID Converter</title>
+</head>
+<body>
+    <h2>Floodgate lookup</h2>
+
+    <input id="inputString" type="text" placeholder="Enter Xbox username">
+    <button onclick="lookup()">Convert</button>
+
+    <p id="result"></p>
+
+    <script>
+        async function lookup() {
+            const input = document.getElementById("inputString").value.trim();
+            const resultEl = document.getElementById("result");
+
+            if (!input) {
+                resultEl.textContent = "Please enter a value.";
+                return;
+            }
+
+            resultEl.textContent = "Fetching…";
+
+            try {
+                const response = await fetch(`https://api.geysermc.org/v2/xbox/xuid/${encodeURIComponent(input)}`);
+                if (!response.ok) {
+                    resultEl.textContent = "API error: " + response.status;
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data.xuid) {
+                    resultEl.textContent = "No xuid found in API response.";
+                    return;
+                }
+
+                // Convert xuid (number) to hex
+                const hex = BigInt(data.xuid).toString(16);
+
+                // Insert hyphen after the first character
+                const hexWithDash = hex.length > 1 ? hex[0] + "-" + hex.slice(1) : hex + "-";
+
+                // Prefix as required
+                const finalValue = "00000000-0000-0000-000" + hexWithDash;
+
+                resultEl.textContent = finalValue;
+
+            } catch (err) {
+                resultEl.textContent = "Error: " + err.message;
+            }
+        }
+    </script>
+</body>
+</html>
